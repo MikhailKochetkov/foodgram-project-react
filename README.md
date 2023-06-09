@@ -48,7 +48,7 @@ docker-compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py collectstatic --no-input
 ```
 
-### Документация к API доступна после запуска
+### Документация к API доступна по ссылке
 
 ```url
 http://127.0.0.1/api/docs/
