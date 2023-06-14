@@ -51,5 +51,5 @@ docker-compose exec web python manage.py collectstatic --no-input
 ### Документация к API доступна по ссылке
 
 ```url
-http://127.0.0.1/api/docs/
+http://127.0.0.1/api/docs/redoc.html
 ```
