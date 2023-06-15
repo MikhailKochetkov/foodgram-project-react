@@ -9,7 +9,7 @@ import api.serializers
 
 class UserSerializer(serializers.ModelSerializer):
     """
-    Serializer для чтения / создания пользователя модели User.
+    Serializer для модели User.
     """
     is_subscribed = serializers.SerializerMethodField()
 
@@ -76,6 +76,6 @@ class FollowSerializer(serializers.ModelSerializer):
                 code=status.HTTP_400_BAD_REQUEST)
         if user == author:
             raise ValidationError(
-                detail='Невозможно подписаться на себя!',
+                detail='Запрещено подписываться на самого себя!',
                 code=status.HTTP_400_BAD_REQUEST)
         return data

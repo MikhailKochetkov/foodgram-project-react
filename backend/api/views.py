@@ -40,7 +40,7 @@ class IngredientViewSet(mixins.ListModelMixin,
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Вьюсет модели Recipe: [GET, POST, DELETE, PATCH]."""
+    """Вьюсет модели Recipe."""
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )

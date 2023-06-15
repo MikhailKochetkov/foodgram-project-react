@@ -81,10 +81,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeListSerializer(serializers.ModelSerializer):
     """
-    Serializer для модели Recipe - чтение данных.
-    Находится ли рецепт в избранном, списке покупок.
-    Получение списка ингредиентов с добавленным полем
-    amount из промежуточной модели.
+    Serializer для модели Recipe.
     """
     author = UserSerializer()
     tags = TagSerializer(
