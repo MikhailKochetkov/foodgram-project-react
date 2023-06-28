@@ -5,8 +5,7 @@ from django.contrib.auth import get_user_model
 
 from recipes.models import (Recipe, Ingredient,
                             Tag, IngredientRecipe,
-                            ShoppingCart, Favorite, Subscribe,
-                            RecipeIngredient)
+                            Subscribe, RecipeIngredient)
 from users.mixins import GetSubscribedMixin
 
 User = get_user_model()

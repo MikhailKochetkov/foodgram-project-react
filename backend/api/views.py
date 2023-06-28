@@ -35,6 +35,7 @@ User = get_user_model()
 class AddAndDeleteSubscribe(
     generics.RetrieveDestroyAPIView,
     generics.ListCreateAPIView):
+
     serializer_class = SubscribeSerializer
 
     def get_queryset(self):
@@ -74,6 +75,7 @@ class AddDeleteFavoriteRecipe(
     GetObjectMixin,
     generics.RetrieveDestroyAPIView,
     generics.ListCreateAPIView):
+
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
         request.user.favorite_recipe.recipe.add(instance)
@@ -88,6 +90,7 @@ class AddDeleteShoppingCart(
     GetObjectMixin,
     generics.RetrieveDestroyAPIView,
     generics.ListCreateAPIView):
+
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
         request.user.shopping_cart.recipe.add(instance)
@@ -214,7 +217,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return FileResponse(
                 buf, as_attachment=True, filename='shoppinglist.pdf')
         page.setFont('Vera', 24)
-        page.drawString(x, y, 'Cписок покупок пуст.')
+        page.drawString(
+            x, y, 'Cписок покупок пуст.'
+        )
         page.save()
         buf.seek(0)
         return FileResponse(buf, as_attachment=True, filename='shoppinglist.pdf')
@@ -223,6 +228,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 class IngredientsViewSet(
     PermissionAndPaginationMixin,
     viewsets.ModelViewSet):
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filterset_class = IngredientFilter
