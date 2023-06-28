@@ -1,11 +1,7 @@
-name: Foodgram
+name: foodgram-project-react_workflow
 
 
-on:
-  push:
-    branches: [ master ]
-    paths-ignore:
-      - '**/README.md'
+on: [push]
 
 jobs:
   tests:

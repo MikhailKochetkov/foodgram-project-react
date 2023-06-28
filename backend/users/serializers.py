@@ -1,81 +1,91 @@
+import django.contrib.auth.password_validation as validators
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
 
-from recipes.models import Follow, Recipe
-from users.models import User
-import api.serializers
+from models import User
+from mixins import GetSubscribedMixin
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """
-    Serializer для модели User.
-    """
-    is_subscribed = serializers.SerializerMethodField()
+class TokenSerializer(serializers.Serializer):
+    email = serializers.CharField(
+        label='Электронная почта',
+        write_only=True)
+    password = serializers.CharField(
+        label='Пароль',
+        trim_whitespace=False,
+        write_only=True,
+        style={'input_type': 'password'}, )
+    token = serializers.CharField(
+        label='Токен',
+        read_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        if email and password:
+            user = authenticate(
+                request=self.context.get('request'),
+                email=email,
+                password=password)
+            if not user:
+                raise serializers.ValidationError(
+                    'Неверно введен логин пользователя и/или пароль.',
+                    code='authorization')
+        else:
+            raise serializers.ValidationError(
+                'Введите адрес электронной почты и пароль.',
+                code='authorization')
+        attrs['user'] = user
+        return attrs
+
+
+class ListUserSerializer(GetSubscribedMixin, serializers.ModelSerializer):
+    is_subscribed = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'password', 'is_subscribed')
-        extra_kwargs = {'password': {'write_only': True},
-                        'is_subscribed': {'read_only': True}}
-
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if not user.is_anonymous:
-            return Follow.objects.filter(user=user, author=obj).exists()
-        return False
-
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        fields = ('id', 'email', 'username', 'first_name',
+                  'last_name', 'is_subscribed')
 
 
-class FollowSerializer(serializers.ModelSerializer):
-    """Serializer для модели Follow."""
-    email = serializers.ReadOnlyField(source='author.email')
-    id = serializers.ReadOnlyField(source='author.id')
-    username = serializers.ReadOnlyField(source='author.username')
-    first_name = serializers.ReadOnlyField(source='author.first_name')
-    last_name = serializers.ReadOnlyField(source='author.last_name')
-    is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Follow
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+        model = User
+        fields = (
+            'id', 'username', 'first_name',
+            'last_name', 'email', 'password',)
 
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if not user.is_anonymous:
-            return Follow.objects.filter(
-                user=obj.user,
-                author=obj.author).exists()
-        return False
+    def validate_password(self, password):
+        validators.validate_password(password)
+        return password
 
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
-        recipes = Recipe.objects.filter(author=obj.author)
-        if limit and limit.isdigit():
-            recipes = recipes[:int(limit)]
-        return api.serializers.RecipeMiniSerializer(recipes, many=True).data
 
-    def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.author).count()
+class PasswordUserSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        label='Текущий пароль')
+    new_password = serializers.CharField(
+        label='Новый пароль')
 
-    def validate(self, data):
-        author = self.context.get('author')
-        user = self.context.get('request').user
-        if Follow.objects.filter(
-                author=author,
-                user=user).exists():
-            raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST)
-        if user == author:
-            raise ValidationError(
-                detail='Запрещено подписываться на самого себя!',
-                code=status.HTTP_400_BAD_REQUEST)
-        return data
+    def validate_password(self, password):
+        user = self.context['request'].user
+        if not authenticate(
+                username=user.email,
+                password=password):
+            raise serializers.ValidationError(
+                'Неверно введен логин пользователя и/или пароль.',
+                code='authorization')
+        return password
+
+    def validate_new_password(self, new_password):
+        validators.validate_password(new_password)
+        return new_password
+
+    def create(self, validated_data):
+        password = make_password(
+            validated_data.get('new_password'))
+        user = self.context['request'].user
+        user.password = password
+        user.save()
+        return validated_data

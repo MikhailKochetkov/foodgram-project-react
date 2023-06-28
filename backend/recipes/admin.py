@@ -1,68 +1,103 @@
 from django.contrib import admin
 
-from .models import (Favorite, Follow, Ingredient, IngredientRecipe,
-                     Recipe, ShoppingCart, Tag,)
+from .models import (FavoriteRecipe, Recipe, Ingredient, ShoppingCart,
+                     RecipeIngredient, Tag, Subscribe)
 
 
-class IngredientsInline(admin.TabularInline):
-    model = IngredientRecipe
-    extra = 3
+class RecipeIngredientAdmin(admin.StackedInline):
+    model = RecipeIngredient
+    autocomplete_fields = ('ingredient',)
 
 
-class FollowAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author')
-    list_filter = ('author',)
-    search_fields = ('user',)
-
-
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('author', 'recipe')
-    list_filter = ('author',)
-    search_fields = ('author',)
-
-
-class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('author', 'recipe')
-    list_filter = ('author',)
-    search_fields = ('author',)
-
-
-class IngredientRecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'recipe', 'ingredient', 'amount',)
-    list_filter = ('recipe', 'ingredient')
-    search_fields = ('name',)
-
-
+@admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'name', 'pub_date', 'in_favorite', )
-    search_fields = ('name',)
-    list_filter = ('pub_date', 'author', 'name', 'tags')
-    filter_horizontal = ('ingredients',)
+    list_display = (
+        'id', 'get_author', 'name', 'text',
+        'cooking_time', 'get_tags', 'get_ingredients',
+        'pub_date', 'get_favorite_count')
+    search_fields = (
+        'name', 'cooking_time',
+        'author__email', 'ingredients__name')
+    list_filter = ('pub_date', 'tags',)
+    inlines = (RecipeIngredientAdmin,)
     empty_value_display = '-пусто-'
-    inlines = [IngredientsInline]
 
-    def in_favorite(self, obj):
-        return obj.favorite.all().count()
+    @admin.display(description='Электронная почта')
+    def get_author(self, obj):
+        return obj.author.email
 
-    in_favorite.short_description = 'Добавленные рецепты в избранное'
+    @admin.display(description='Тэги')
+    def get_tags(self, obj):
+        list_ = [_.name for _ in obj.tags.all()]
+        return ', '.join(list_)
+
+    @admin.display(description='Ингредиенты')
+    def get_ingredients(self, obj):
+        return '\n '.join([
+            f'{item["ingredient__name"]} - {item["amount"]}'
+            f' {item["ingredient__measurement_unit"]}.'
+            for item in obj.recipe.values(
+                'ingredient__name',
+                'amount', 'ingredient__measurement_unit')])
+
+    @admin.display(description='В избранном')
+    def get_favorite_count(self, obj):
+        return obj.favorite_recipe.count()
 
 
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'slug', 'color')
-    list_filter = ('name',)
-    search_fields = ('name',)
-
-
+@admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement_unit')
-    list_filter = ('name',)
-    search_fields = ('name',)
+    list_display = (
+        'id', 'name', 'measurement_unit',)
+    search_fields = (
+        'name', 'measurement_unit',)
+    empty_value_display = '-пусто-'
 
 
-admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(IngredientRecipe, IngredientRecipeAdmin)
-admin.site.register(Follow, FollowAdmin)
-admin.site.register(Favorite, FavoriteAdmin)
-admin.site.register(ShoppingCart, ShoppingCartAdmin)
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'name', 'color', 'slug',)
+    search_fields = ('name', 'slug',)
+    empty_value_display = '-пусто-'
+
+
+@admin.register(Subscribe)
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'user', 'author', 'created',)
+    search_fields = (
+        'user__email', 'author__email',)
+    empty_value_display = '-пусто-'
+
+
+@admin.register(FavoriteRecipe)
+class FavoriteRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'user', 'get_recipe', 'get_count')
+    empty_value_display = '-пусто-'
+
+    @admin.display(description='Рецепты')
+    def get_recipe(self, obj):
+        return [
+            f'{item["name"]} ' for item in obj.recipe.values('name')[:5]]
+
+    @admin.display(description='В избранном')
+    def get_count(self, obj):
+        return obj.recipe.count()
+
+
+@admin.register(ShoppingCart)
+class SoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'user', 'get_recipe', 'get_count')
+    empty_value_display = '-пусто-'
+
+    @admin.display(description='Рецепты')
+    def get_recipe(self, obj):
+        return [
+            f'{item["name"]} ' for item in obj.recipe.values('name')[:5]]
+
+    @admin.display(description='В избранном')
+    def get_count(self, obj):
+        return obj.recipe.count()

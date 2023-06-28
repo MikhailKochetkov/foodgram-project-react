@@ -4,9 +4,9 @@ from .models import User
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'first_name',
-                    'last_name', 'email', 'role', 'admin')
-    search_fields = ('username', 'email')
-    list_filter = ('username', 'email',)
+                    'last_name', 'email',)
+    search_fields = ('username', 'email', 'first_name', 'last_name',)
+    list_filter = ('first_name', 'email',)
     empty_value_display = '-пусто-'
 
 
