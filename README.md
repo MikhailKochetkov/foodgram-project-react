@@ -43,34 +43,34 @@ DB_PORT                 - 5432
 
 Создать и запустить контейнеры Docker:
 ```bash
-sudo docker compose up -d
+sudo docker-compose up -d
 ```
 
 Выполнить миграции:
 ```bash
-sudo docker compose exec backend python manage.py migrate
+sudo docker-compose exec backend python manage.py migrate
 ```
 
 Собрать статику:
 ```bash
-sudo docker compose exec web python manage.py collectstatic --noinput
+sudo docker-compose exec web python manage.py collectstatic --noinput
 ```
 
 Создать суперпользователя:
 ```bash
-sudo docker compose exec backend python manage.py createsuperuser
+sudo docker-compose exec backend python manage.py createsuperuser
 ```
 
 Остановить контейнеры:
 ```bash
-sudo docker compose down -v      - остановка и удаление контейнеров
-sudo docker compose stop         - остановка контейнеров без удаления
+sudo docker-compose down -v      - остановка и удаление контейнеров
+sudo docker-compose stop         - остановка контейнеров без удаления
 ```
 
 ### Документация к API доступна по ссылке
 
 ```url
-http://158.160.38.121/api/docs/redoc.html
+http://51.250.71.26/api/docs/redoc.html
 ```
 
 ## Запуск проекта на localhost
