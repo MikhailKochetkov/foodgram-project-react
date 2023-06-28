@@ -48,7 +48,7 @@ sudo docker-compose up -d
 
 Выполнить миграции:
 ```bash
-sudo docker-compose exec backend python manage.py migrate
+sudo docker-compose exec web python manage.py migrate
 ```
 
 Собрать статику:
@@ -58,7 +58,7 @@ sudo docker-compose exec web python manage.py collectstatic --noinput
 
 Создать суперпользователя:
 ```bash
-sudo docker-compose exec backend python manage.py createsuperuser
+sudo docker-compose exec web python manage.py createsuperuser
 ```
 
 Остановить контейнеры:
