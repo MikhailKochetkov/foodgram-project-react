@@ -33,8 +33,8 @@ User = get_user_model()
 
 
 class AddAndDeleteSubscribe(
-    generics.RetrieveDestroyAPIView,
-    generics.ListCreateAPIView):
+        generics.RetrieveDestroyAPIView,
+        generics.ListCreateAPIView):
 
     serializer_class = SubscribeSerializer
 
@@ -72,9 +72,9 @@ class AddAndDeleteSubscribe(
 
 
 class AddDeleteFavoriteRecipe(
-    GetObjectMixin,
-    generics.RetrieveDestroyAPIView,
-    generics.ListCreateAPIView):
+        GetObjectMixin,
+        generics.RetrieveDestroyAPIView,
+        generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -87,9 +87,9 @@ class AddDeleteFavoriteRecipe(
 
 
 class AddDeleteShoppingCart(
-    GetObjectMixin,
-    generics.RetrieveDestroyAPIView,
-    generics.ListCreateAPIView):
+        GetObjectMixin,
+        generics.RetrieveDestroyAPIView,
+        generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -222,12 +222,14 @@ class RecipesViewSet(viewsets.ModelViewSet):
         )
         page.save()
         buf.seek(0)
-        return FileResponse(buf, as_attachment=True, filename='shoppinglist.pdf')
+        return FileResponse(buf,
+                            as_attachment=True,
+                            filename='shoppinglist.pdf')
 
 
 class IngredientsViewSet(
-    PermissionAndPaginationMixin,
-    viewsets.ModelViewSet):
+        PermissionAndPaginationMixin,
+        viewsets.ModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -235,8 +237,9 @@ class IngredientsViewSet(
 
 
 class TagsViewSet(
-    PermissionAndPaginationMixin,
-    viewsets.ModelViewSet):
+        PermissionAndPaginationMixin,
+        viewsets.ModelViewSet):
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
