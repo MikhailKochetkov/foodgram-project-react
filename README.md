@@ -48,6 +48,11 @@ DB_PORT                 - 5432
 sudo docker-compose up -d
 ```
 
+Создать миграции:
+```bash
+sudo docker-compose exec web python manage.py makemigrations
+```
+
 Выполнить миграции:
 ```bash
 sudo docker-compose exec web python manage.py migrate

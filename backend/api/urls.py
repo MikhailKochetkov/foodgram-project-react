@@ -15,6 +15,7 @@ router.register('users', UsersViewSet)
 
 
 urlpatterns = [
+     path('', include(router.urls)),
      path('auth/token/login/',
           AuthToken.as_view(),
           name='login'),
@@ -30,7 +31,6 @@ urlpatterns = [
      path('recipes/<int:recipe_id>/shopping_cart/',
           AddDeleteShoppingCart.as_view(),
           name='shopping_cart'),
-     path('', include(router.urls)),
      path('', include('djoser.urls')),
-     path('auth/', include('djoser.urls.authtoken')),
+     path(r'auth/', include('djoser.urls.authtoken')),
 ]
