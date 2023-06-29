@@ -3,8 +3,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from models import User
-from mixins import GetSubscribedMixin
+from .models import User
+from .mixins import GetSubscribedMixin
 
 
 class TokenSerializer(serializers.Serializer):
